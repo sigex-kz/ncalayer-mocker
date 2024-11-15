@@ -1,6 +1,7 @@
 const assert = require('assert').strict;
 const { NCALayerClient } = require('ncalayer-js-client');
 const mocker = require('../ncalayer-mocker');
+const mockerClient = require('../ncalayer-mocker-client');
 
 const documentInBase64 = 'MTEK';
 const signature = 'MTEKA';
@@ -9,6 +10,8 @@ const signature = 'MTEKA';
   mocker.start();
 
   try {
+    await mockerClient.configureSettings({ noTLS: true });
+
     const ncalayerClient = new NCALayerClient('ws://127.0.0.1:13579');
     await ncalayerClient.connect();
 
@@ -20,7 +23,7 @@ const signature = 'MTEKA';
     );
     await assert.rejects(callWhenQueueIsEmpty);
 
-    await mocker.registerResponseForBasicsSignCMS(signature);
+    await mockerClient.registerResponseForBasicsSignCMS(signature);
     const base64EncodedSignature = await ncalayerClient.basicsSignCMS(
       NCALayerClient.basicsStorageAll,
       documentInBase64,

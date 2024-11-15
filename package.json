@@ -2,7 +2,8 @@
   "name": "ncalayer-mocker",
   "version": "0.0.1",
   "description": "Настраиваемый сервис эмулирующий NCALayer для e2e тестирования интегрированных приложений",
-  "main": "ncalayer-mocker.js",
+  "main": "ncalayer-mocker-client.js",
+  "bin": "ncalayer-mocker-launch.js",
   "scripts": {
     "build": "npm run test && npm run lint",
     "lint": "eslint --ignore-pattern 'docs' --ignore-pattern 'test/test-data-builder/js/vue.min.js' '**/*.js'",

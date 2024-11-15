@@ -1,36 +1,25 @@
 const http = require('http');
+const https = require('https');
+const { readFileSync } = require('fs');
 const { WebSocketServer } = require('ws');
-
-const controlServerPort = 8642;
 
 let messageQueue;
 let controlServer;
+let baseServer;
 let wss;
+let noTLS = false;
 
-module.exports.start = () => {
-  messageQueue = [];
+function startNCALayerServer() {
+  if (noTLS) {
+    baseServer = http.createServer();
+  } else {
+    baseServer = https.createServer({
+      cert: readFileSync('tls/certificate.pem'),
+      key: readFileSync('tls/privateKey.pem'),
+    });
+  }
 
-  controlServer = http.createServer((req, res) => {
-    if (req.method === 'POST' && req.url === '/') {
-      let messageBody = '';
-
-      req.on('data', (chunk) => {
-        messageBody += chunk;
-      });
-
-      req.on('end', () => {
-        messageQueue.push(messageBody);
-        res.statusCode = 200;
-        res.end('OK');
-      });
-    } else {
-      res.statusCode = 404;
-      res.end('Not Found');
-    }
-  });
-  controlServer.listen(controlServerPort);
-
-  wss = new WebSocketServer({ port: 13579 });
+  wss = new WebSocketServer({ server: baseServer });
   wss.on('connection', (ws) => {
     ws.send(JSON.stringify({ result: { version: 'ncalayer-mocker' } }));
 
@@ -48,42 +37,78 @@ module.exports.start = () => {
       ws.send(responseMessage);
     });
   });
-};
 
-module.exports.stop = () => {
-  controlServer.close();
-  controlServer = null;
+  baseServer.listen(13579);
+}
 
+function stopNCALayerServer() {
   wss.clients.forEach((client) => {
     client.close();
   });
   wss.close();
   wss = null;
 
-  messageQueue = null;
+  baseServer.close();
+  baseServer = null;
+}
+
+module.exports.start = () => {
+  messageQueue = [];
+
+  controlServer = http.createServer((req, res) => {
+    if (req.method === 'POST' && req.url === '/settings') {
+      let requestBody = '';
+
+      req.on('data', (chunk) => {
+        requestBody += chunk;
+      });
+
+      req.on('end', () => {
+        try {
+          const settings = JSON.parse(requestBody);
+          noTLS = settings.noTLS;
+
+          stopNCALayerServer();
+          startNCALayerServer();
+        } catch (err) {
+          res.statusCode = 500;
+          res.end(`Bad request: ${err}`);
+        }
+
+        res.statusCode = 200;
+        res.end('OK');
+      });
+
+      return;
+    }
+
+    if (req.method === 'POST' && req.url === '/') {
+      let messageBody = '';
+
+      req.on('data', (chunk) => {
+        messageBody += chunk;
+      });
+
+      req.on('end', () => {
+        messageQueue.push(messageBody);
+        res.statusCode = 200;
+        res.end('OK');
+      });
+    } else {
+      res.statusCode = 404;
+      res.end('Not Found');
+    }
+  });
+  controlServer.listen(8642);
+
+  startNCALayerServer();
 };
 
-module.exports.registerResponseForBasicsSignCMS = async (base64EncodedSignature) => {
-  const responseToRegister = JSON.stringify({
-    status: true,
-    body: { result: base64EncodedSignature },
-  });
+module.exports.stop = () => {
+  controlServer.close();
+  controlServer = null;
 
-  const options = {
-    hostname: '127.0.0.1',
-    port: controlServerPort,
-    path: '/',
-    method: 'POST',
-  };
+  stopNCALayerServer();
 
-  return new Promise((resolve, reject) => {
-    const req = http.request(options, (res) => {
-      res.on('data', () => {});
-      res.on('end', resolve);
-    });
-
-    req.on('error', reject);
-    req.write(responseToRegister);
-    req.end();
-  });
+  messageQueue = null;
 };
