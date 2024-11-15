@@ -1,6 +1,6 @@
 {
   "name": "ncalayer-mocker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Настраиваемый сервис эмулирующий NCALayer для e2e тестирования интегрированных приложений",
   "main": "ncalayer-mocker-client.js",
   "bin": "ncalayer-mocker-launch.js",
