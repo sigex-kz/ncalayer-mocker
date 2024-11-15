@@ -1,0 +1,34 @@
+{
+  "name": "ncalayer-mocker",
+  "version": "0.0.1",
+  "description": "Настраиваемый сервис эмулирующий NCALayer для e2e тестирования интегрированных приложений",
+  "main": "ncalayer-mocker.js",
+  "scripts": {
+    "build": "npm run test && npm run lint",
+    "lint": "eslint --ignore-pattern 'docs' --ignore-pattern 'test/test-data-builder/js/vue.min.js' '**/*.js'",
+    "test": "node test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sigex-kz/ncalayer-mocker.git"
+  },
+  "keywords": [
+    "ncalayer",
+    "mock"
+  ],
+  "author": "vsenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sigex-kz/ncalayer-mocker/issues"
+  },
+  "homepage": "https://github.com/sigex-kz/ncalayer-mocker#readme",
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "ncalayer-js-client": "^1.5.3"
+  }
+}
