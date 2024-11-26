@@ -1,5 +1,6 @@
 const http = require('http');
 const https = require('https');
+const path = require('path');
 const { readFileSync } = require('fs');
 const { WebSocketServer } = require('ws');
 
@@ -14,8 +15,8 @@ function startNCALayerServer() {
     baseServer = http.createServer();
   } else {
     baseServer = https.createServer({
-      cert: readFileSync('tls/certificate.pem'),
-      key: readFileSync('tls/privateKey.pem'),
+      cert: readFileSync(path.join(__dirname, 'tls/certificate.pem')),
+      key: readFileSync(path.join(__dirname, 'tls/privateKey.pem')),
     });
   }
 
