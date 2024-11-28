@@ -32,3 +32,11 @@ const ncalayerMocker = require('ncalayer-mocker');
 
 await ncalayerMocker.registerResponseForBasicsSignCMS(signatureB64);
 ```
+
+## Отладочный вывод
+
+Поддерживается отладочный вывод средствами [`util.debug(section)`](https://nodejs.org/docs/latest/api/util.html#utildebugsection):
+
+```
+NODE_DEBUG=messages* npm exec ncalayer-mocker
+```

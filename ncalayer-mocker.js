@@ -1,6 +1,7 @@
 const http = require('http');
 const https = require('https');
 const path = require('path');
+const util = require('util');
 const { readFileSync } = require('fs');
 const { WebSocketServer } = require('ws');
 
@@ -9,6 +10,12 @@ let controlServer;
 let baseServer;
 let wss;
 let noTLS = false;
+
+// NODE_DEBUG
+const debugLogMessagesWsIn = util.debug('messages-ws-in');
+const debugLogMessagesWsOut = util.debug('messages-ws-out');
+const debugLogMessagesHttp = util.debug('messages-http');
+const debugLogMessagesHttpSettings = util.debug('messages-http-settings');
 
 function startNCALayerServer() {
   if (noTLS) {
@@ -25,6 +32,8 @@ function startNCALayerServer() {
     ws.send(JSON.stringify({ result: { version: 'ncalayer-mocker' } }));
 
     ws.on('message', (msg) => {
+      debugLogMessagesWsIn(msg.toString());
+
       if (msg === '{"module":"kz.digiflow.mobile.extensions","method":"getVersion"}') {
         ws.send('{}');
         return;
@@ -35,6 +44,7 @@ function startNCALayerServer() {
         responseMessage = messageQueue.shift();
       }
 
+      debugLogMessagesWsOut(responseMessage);
       ws.send(responseMessage);
     });
   });
@@ -66,6 +76,7 @@ module.exports.start = () => {
 
       req.on('end', () => {
         try {
+          debugLogMessagesHttpSettings(requestBody);
           const settings = JSON.parse(requestBody);
           noTLS = settings.noTLS;
 
@@ -91,6 +102,7 @@ module.exports.start = () => {
       });
 
       req.on('end', () => {
+        debugLogMessagesHttp(messageBody);
         messageQueue.push(messageBody);
         res.statusCode = 200;
         res.end('OK');
