@@ -45,7 +45,7 @@ const signature = 'MTEKA';
       (err) => {
         assert.ok(err.canceledByUser);
         return true;
-      }
+      },
     );
   } finally {
     mocker.stop();
