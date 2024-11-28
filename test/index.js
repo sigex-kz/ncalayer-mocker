@@ -31,6 +31,22 @@ const signature = 'MTEKA';
       NCALayerClient.basicsSignerSignAny,
     );
     assert.equal(base64EncodedSignature, signature);
+
+    await mockerClient.registerResponseForBasicsSignCMSCanceledByUser();
+    await assert.rejects(
+      async () => {
+        await ncalayerClient.basicsSignCMS(
+          NCALayerClient.basicsStorageAll,
+          documentInBase64,
+          NCALayerClient.basicsCMSParamsDetached,
+          NCALayerClient.basicsSignerSignAny,
+        );
+      },
+      (err) => {
+        assert.ok(err.canceledByUser);
+        return true;
+      }
+    );
   } finally {
     mocker.stop();
   }

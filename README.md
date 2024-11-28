@@ -31,6 +31,7 @@ npm exec ncalayer-mocker
 const ncalayerMocker = require('ncalayer-mocker');
 
 await ncalayerMocker.registerResponseForBasicsSignCMS(signatureB64);
+await ncalayerMocker.registerResponseForBasicsSignCMSCanceledByUser();
 ```
 
 ## Отладочный вывод

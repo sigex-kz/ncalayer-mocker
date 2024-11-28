@@ -29,4 +29,13 @@ module.exports.registerResponseForBasicsSignCMS = async (base64EncodedSignature)
   return postData('/', responseToRegister);
 };
 
+module.exports.registerResponseForBasicsSignCMSCanceledByUser = async () => {
+  const responseToRegister = JSON.stringify({
+    status: true,
+    body: {},
+  });
+
+  return postData('/', responseToRegister);
+};
+
 module.exports.configureSettings = async (settings) => postData('/settings', JSON.stringify(settings));
