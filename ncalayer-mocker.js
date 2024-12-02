@@ -126,6 +126,8 @@ module.exports.start = () => {
           noTLS,
         }));
       });
+
+      return;
     }
 
     res.statusCode = 404;
