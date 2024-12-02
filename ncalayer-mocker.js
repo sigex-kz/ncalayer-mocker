@@ -107,10 +107,29 @@ module.exports.start = () => {
         res.statusCode = 200;
         res.end('OK');
       });
-    } else {
-      res.statusCode = 404;
-      res.end('Not Found');
+
+      return;
     }
+
+    if (req.method === 'GET' && req.url === '/') {
+      let messageBody = '';
+
+      req.on('data', (chunk) => {
+        messageBody += chunk;
+      });
+
+      req.on('end', () => {
+        debugLogMessagesHttp(messageBody);
+        res.statusCode = 200;
+        res.end(JSON.stringify({
+          messageQueue,
+          noTLS,
+        }));
+      });
+    }
+
+    res.statusCode = 404;
+    res.end('Not Found');
   });
   controlServer.listen(8642);
 
